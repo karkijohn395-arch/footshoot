@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FootShoot - Link Saver</title>
+    <style>
+        /* Modern CSS Reset & Variables */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        /* Header Style */
+        header {
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #38bdf8, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header p {
+            color: #94a3b8;
+            margin-top: 0.5rem;
+        }
+
+        /* Form Container */
+        .input-container {
+            background-color: #1e293b;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 3rem;
+            border: 1px solid #334155;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: #3b82f6;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        /* Links Grid Display */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .link-card {
+            background-color: #1e293b;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 150px;
+        }
+
+        .link-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            border-color: #3b82f6;
+        }
+
+        .link-card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            color: #f1f5f9;
+            word-wrap: break-word;
+        }
+
+        .card-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: auto;
+        }
+
+        .link-card a {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #334155;
+            color: #38bdf8;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+            flex: 1;
+        }
+
+        .link-card a:hover {
+            background-color: #3b82f6;
+            color: #fff;
+        }
+
+        /* Delete Button Styling */
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            width: auto;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>FootShoot</h1>
+        <p>Your personal collection of favorite websites</p>
+    </header>
+
+    <div class="input-container">
+        <div class="form-group">
+            <label for="siteName">Website Name</label>
+            <input type="text" id="siteName" placeholder="e.g., Google, GitHub">
+        </div>
+        <div class="form-group">
+            <label for="siteUrl">Website URL</label>
+            <input type="url" id="siteUrl" placeholder="e.g., https://google.com">
+        </div>
+        <button onclick="addLink()">Shoot Link</button>
+    </div>
+
+    <div class="links-grid" id="linksGrid">
+        </div>
+
+    <script>
+        // Load links from LocalStorage as soon as the page opens
+        document.addEventListener('DOMContentLoaded', displayLinks);
+
+        function addLink() {
+            const nameInput = document.getElementById('siteName');
+            const urlInput = document.getElementById('siteUrl');
+            
+            let name = nameInput.value.trim();
+            let url = urlInput.value.trim();
+
+            if (name === '' || url === '') {
+                alert('Please fill out both fields!');
+                return;
+            }
+
+            if (!/^https?:\/\//i.test(url)) {
+                url = 'https://' + url;
+            }
+
+            // Create a link object
+            const linkItem = {
+                id: Date.now(), // Unique ID to target for deletion
+                name: name,
+                url: url
+            };
+
+            // Save to LocalStorage array
+            saveToStorage(linkItem);
+
+            // Refresh display
+            displayLinks();
+
+            // Clear inputs
+            nameInput.value = '';
+            urlInput.value = '';
+        }
+
+        // Function to grab items and save to local storage
+        function saveToStorage(item) {
+            let links = localStorage.getItem('footshoot_links') ? JSON.parse(localStorage.getItem('footshoot_links')) : [];
+            links.push(item);
+            localStorage.setItem('footshoot_links', JSON.stringify(links));
+        }
+
+        // Function to print links onto the UI grid
+        function displayLinks() {
+            const grid = document.getElementById('linksGrid');
+            grid.innerHTML = ''; // Clear previous elements to avoid duplication
+
+            let links = localStorage.getItem('footshoot_links') ? JSON.parse(localStorage.getItem('footshoot_links')) : [];
+
+            links.forEach(link => {
+                const card = document.createElement('div');
+                card.className = 'link-card';
+
+                card.innerHTML = `
+                    <h3>${link.name}</h3>
+                    <div class="card-buttons">
+                        <a href="${link.url}" target="_blank">Visit Site</a>
+                        <button class="delete-btn" onclick="deleteLink(${link.id})">?</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Function to delete a link card
+        function deleteLink(id) {
+            let links = JSON.parse(localStorage.getItem('footshoot_links'));
+            
+            // Filter out the item with the matching ID
+            links = links.filter(link => link.id !== id);
+            
+            // Update local storage and re-render grid
+            localStorage.setItem('footshoot_links', JSON.stringify(links));
+            displayLinks();
+        }
+    </script>
+
+</body>
+</html>
